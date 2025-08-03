@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy Football Analysis</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏈 Fantasy Football Analysis</h1>
+        
+        <div class="nav">
+            <button onclick="loadTeams()">Teams</button>
+            <button onclick="loadPlayers()">Players</button>
+            <button onclick="loadHealth()">Health Check</button>
+        </div>
+        
+        <div class="content" id="content">
+            <div class="loading">Click a button to load data...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadTeams() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">Loading teams...</div>';
+            
+            try {
+                const response = await fetch('/api/teams');
+                const data = await response.json();
+                
+                if (data.teams && data.teams.length > 0) {
+                    const table = createTable(data.teams, ['team_name', 'owner_name', 'wins', 'losses', 'ties', 'points_for']);
+                    content.innerHTML = '<h2>Fantasy Teams</h2>' + table;
+                } else {
+                    content.innerHTML = '<div class="loading">No teams found</div>';
+                }
+            } catch (error) {
+                content.innerHTML = '<div class="error">Error loading teams: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadPlayers() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">Loading players...</div>';
+            
+            try {
+                const response = await fetch('/api/players');
+                const data = await response.json();
+                
+                if (data.players && data.players.length > 0) {
+                    const table = createTable(data.players, ['name', 'position', 'is_active', 'is_injured']);
+                    content.innerHTML = '<h2>Players</h2>' + table;
+                } else {
+                    content.innerHTML = '<div class="loading">No players found</div>';
+                }
+            } catch (error) {
+                content.innerHTML = '<div class="error">Error loading players: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadHealth() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">Checking health...</div>';
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                content.innerHTML = `
+                    <h2>System Health</h2>
+                    <div style="background-color: #d4edda; padding: 15px; border-radius: 4px; margin: 10px 0;">
+                        <strong>Status:</strong> ${data.status}<br>
+                        <strong>Database:</strong> ${data.database}
+                    </div>
+                `;
+            } catch (error) {
+                content.innerHTML = '<div class="error">Error checking health: ' + error.message + '</div>';
+            }
+        }
+
+        function createTable(data, columns) {
+            if (!data || data.length === 0) {
+                return '<div class="loading">No data available</div>';
+            }
+
+            let table = '<table class="data-table"><thead><tr>';
+            
+            // Create header
+            columns.forEach(column => {
+                table += `<th>${column.replace('_', ' ').toUpperCase()}</th>`;
+            });
+            table += '</tr></thead><tbody>';
+            
+            // Create rows
+            data.forEach(row => {
+                table += '<tr>';
+                columns.forEach(column => {
+                    let value = row[column];
+                    if (typeof value === 'boolean') {
+                        value = value ? 'Yes' : 'No';
+                    } else if (typeof value === 'number' && column.includes('points')) {
+                        value = value.toFixed(2);
+                    }
+                    table += `<td>${value || ''}</td>`;
+                });
+                table += '</tr>';
+            });
+            
+            table += '</tbody></table>';
+            return table;
+        }
+    </script>
+</body>
+</html> 

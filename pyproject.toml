@@ -1,0 +1,42 @@
+[project]
+name = "free-fantasy-football"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "espn-api>=0.45.1",
+    "fastapi[all]>=0.116.1",
+    "requests>=2.32.4",
+    "psycopg2-binary>=2.9.9",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+select = [
+    "E",    # pycodestyle errors
+    "I",    # isort
+    "UP",   # pyupgrade
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+]
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
+

@@ -1,0 +1,14 @@
+services:
+  fantasy-football:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ESPN_LEAGUE_ID=24481082
+      - ESPN_YEAR=2024
+    volumes:
+      - fantasy_football_data:/app/data
+    restart: unless-stopped
+
+volumes:
+  fantasy_football_data: 
