@@ -143,10 +143,9 @@ def test_real_espn_league():
     except Exception as e:
         pytest.fail(f"Real ESPN test failed: {e}")
 
-
-def test_convert_player_with_injury_status():
-    """Test converting a player with injury status"""
-    from espn_adapter import convert_player
+    def test_convert_player_with_injury_status():
+        """Test converting a player with injury status"""
+        from espn import convert_player
 
     # Mock injured player
     mock_player = Mock(
@@ -164,10 +163,9 @@ def test_convert_player_with_injury_status():
     assert player.is_injured == 1  # Should be converted to integer for SQLite
     assert player.injury_status == "QUESTIONABLE"
 
-
-def test_convert_player_with_team_info():
-    """Test converting a player with team information"""
-    from espn_adapter import convert_player
+    def test_convert_player_with_team_info():
+        """Test converting a player with team information"""
+        from espn import convert_player
 
     # Mock player with team info
     mock_player = Mock(
