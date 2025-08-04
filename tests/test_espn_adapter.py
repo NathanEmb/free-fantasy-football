@@ -12,6 +12,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
 
 from espn_adapter import convert_players, get_all_players, get_league_data
+from logging_config import get_logger
 
 
 @pytest.fixture
@@ -109,6 +110,7 @@ def test_convert_players(mock_espn_league):
 @pytest.mark.integration
 def test_real_espn_league():
     """Test with real ESPN league data (integration test)"""
+    logger = get_logger(__name__)
     league_id = int(os.getenv("ESPN_LEAGUE_ID", "24481082"))
     year = int(os.getenv("ESPN_YEAR", "2024"))
 
@@ -125,14 +127,18 @@ def test_real_espn_league():
 
         # Check if we got more players than before (should include free agents)
         if len(players) > 173:  # Previous count was 173
-            print(f"✅ Successfully got {len(players)} players (including free agents)")
+            logger.info(f"✅ Successfully got {len(players)} players (including free agents)")
         else:
-            print(f"⚠️  Got {len(players)} players (same as before - may not have free agents)")
+            logger.warning(
+                f"⚠️  Got {len(players)} players (same as before - may not have free agents)"
+            )
 
         # Show some player examples
-        print(f"\n📋 Sample Players:")
+        logger.info(f"\n📋 Sample Players:")
         for i, player in enumerate(players[:5]):
-            print(f"  {i + 1}. {player.name} ({player.position.value}) - ESPN ID: {player.espn_id}")
+            logger.info(
+                f"  {i + 1}. {player.name} ({player.position.value}) - ESPN ID: {player.espn_id}"
+            )
 
     except Exception as e:
         pytest.fail(f"Real ESPN test failed: {e}")

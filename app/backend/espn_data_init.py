@@ -10,6 +10,7 @@ from typing import Optional
 
 from database import execute_query, get_db_connection
 from espn_adapter import ESPNAdapterError, get_league_data, validate_league_access
+from logging_config import get_logger
 
 
 def get_league_config_from_env() -> tuple[int, int]:
@@ -30,15 +31,16 @@ def safe_enum_value(enum_obj) -> str:
 
 def init_espn_data():
     """Initialize the database with ESPN data"""
-    print("Initializing database with ESPN data...")
+    logger = get_logger(__name__)
+    logger.info("Initializing database with ESPN data...")
 
     league_id, year = get_league_config_from_env()
-    print(f"Using ESPN League ID: {league_id}, Year: {year}")
+    logger.info(f"Using ESPN League ID: {league_id}, Year: {year}")
 
     # Validate league access first
     if not validate_league_access(league_id, year):
-        print(f"Could not access ESPN league {league_id} for year {year}")
-        print("Please check your ESPN_LEAGUE_ID and ESPN_YEAR environment variables")
+        logger.error(f"Could not access ESPN league {league_id} for year {year}")
+        logger.error("Please check your ESPN_LEAGUE_ID and ESPN_YEAR environment variables")
         return False
 
     try:
@@ -197,19 +199,19 @@ def init_espn_data():
                     )
 
             conn.commit()
-            print(f"Successfully initialized database with ESPN data:")
-            print(f"  - League: {league_config.league_name}")
-            print(f"  - Teams: {len(teams)}")
-            print(f"  - Players: {len(players)}")
-            print(f"  - Roster Entries: {len(roster_entries)}")
-            print(f"  - Matchups: {len(matchups)}")
+            logger.info(f"Successfully initialized database with ESPN data:")
+            logger.info(f"  - League: {league_config.league_name}")
+            logger.info(f"  - Teams: {len(teams)}")
+            logger.info(f"  - Players: {len(players)}")
+            logger.info(f"  - Roster Entries: {len(roster_entries)}")
+            logger.info(f"  - Matchups: {len(matchups)}")
             return True
 
     except ESPNAdapterError as e:
-        print(f"ESPN adapter error: {e}")
+        logger.error(f"ESPN adapter error: {e}")
         return False
     except Exception as e:
-        print(f"Error initializing ESPN data: {e}")
+        logger.error(f"Error initializing ESPN data: {e}")
         return False
 
 

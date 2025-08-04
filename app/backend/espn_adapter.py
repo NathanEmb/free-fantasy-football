@@ -391,24 +391,24 @@ def main() -> None:
         year = 2024
 
         if validate_league_access(league_id, year):
-            print(f"Successfully accessed league {league_id}")
+            logger.info(f"Successfully accessed league {league_id}")
 
             # Get complete league data
             league_config, teams, players, rosters, matchups = get_league_data(league_id, year)
 
-            print(f"League: {league_config.league_name}")
-            print(f"Teams: {len(teams)}")
-            print(f"Players: {len(players)}")
-            print(f"Roster Entries: {len(rosters)}")
-            print(f"Matchups: {len(matchups)}")
+            logger.info(f"League: {league_config.league_name}")
+            logger.info(f"Teams: {len(teams)}")
+            logger.info(f"Players: {len(players)}")
+            logger.info(f"Roster Entries: {len(rosters)}")
+            logger.info(f"Matchups: {len(matchups)}")
 
         else:
-            print(f"Could not access league {league_id}")
+            logger.error(f"Could not access league {league_id}")
 
     except ESPNAdapterError as e:
-        print(f"ESPN adapter error: {e}")
+        logger.error(f"ESPN adapter error: {e}")
     except Exception as e:
-        print(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}")
 
 
 if __name__ == "__main__":

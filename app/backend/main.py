@@ -5,11 +5,11 @@ FastAPI application for Fantasy Football Analysis
 import os
 
 import uvicorn
+from database import get_database_path, init_database
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-
-from database import get_database_path, init_database
+from logging_config import get_logger
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -21,33 +21,39 @@ app = FastAPI(
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/frontend"), name="static")
 
+# Get logger for this module
+logger = get_logger(__name__)
+
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize database on startup"""
     try:
         init_database()
-        print(f"Database initialized at: {get_database_path()}")
-        
+        logger.info(f"Database initialized at: {get_database_path()}")
+
         # Initialize ESPN data if database is empty
         from database import execute_query
+
         teams_count = execute_query("SELECT COUNT(*) as count FROM fantasy_teams")
-        if teams_count[0]['count'] == 0:
-            print("Database is empty, initializing ESPN data...")
+        if teams_count[0]["count"] == 0:
+            logger.info("Database is empty, initializing ESPN data...")
             from espn_data_init import init_espn_data
+
             success = init_espn_data()
             if success:
-                print("ESPN data initialization complete!")
+                logger.info("ESPN data initialization complete!")
             else:
-                print("ESPN data initialization failed, falling back to sample data...")
+                logger.warning("ESPN data initialization failed, falling back to sample data...")
                 from init_data import init_sample_data
+
                 init_sample_data()
-                print("Sample data initialization complete!")
+                logger.info("Sample data initialization complete!")
         else:
-            print("Database already contains data, skipping initialization.")
-            
+            logger.info("Database already contains data, skipping initialization.")
+
     except Exception as e:
-        print(f"Error initializing database: {e}")
+        logger.error(f"Error initializing database: {e}")
 
 
 @app.get("/")
