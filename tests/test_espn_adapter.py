@@ -11,7 +11,7 @@ import pytest
 # Add the app directory to the path so we can import modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
 
-from espn_adapter import convert_players, get_all_players, get_league_data
+from espn import convert_players, get_all_players, get_league_data
 from logging_config import get_logger
 
 

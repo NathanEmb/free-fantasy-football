@@ -7,6 +7,7 @@ import os
 import subprocess
 import sys
 
+sys.path.append("app/backend")
 from logging_config import get_logger
 
 

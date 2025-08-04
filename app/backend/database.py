@@ -8,7 +8,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 
 # Database path
-DATABASE_PATH = os.getenv("SQLITE_DB_PATH", "/app/data/fantasy_football.db")
+DATABASE_PATH = os.getenv("SQLITE_DB_PATH", "data/fantasy_football.db")
 
 
 def get_database_path() -> str:

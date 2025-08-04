@@ -38,7 +38,7 @@ async def startup_event():
         teams_count = execute_query("SELECT COUNT(*) as count FROM fantasy_teams")
         if teams_count[0]["count"] == 0:
             logger.info("Database is empty, initializing ESPN data...")
-            from espn_data_init import init_espn_data
+            from espn import init_espn_data
 
             success = init_espn_data()
             if success:
