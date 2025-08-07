@@ -681,7 +681,7 @@ class TestErrorHandling:
 
     def test_validate_league_access_success(self):
         """Test successful league access validation"""
-        with patch("espn.ESPNLeague") as mock_espn_league_class:
+        with patch("src.espn.ESPNLeague") as mock_espn_league_class:
             mock_league = Mock()
             mock_league.teams = [Mock(), Mock()]  # 2 teams
             mock_espn_league_class.return_value = mock_league
@@ -691,7 +691,7 @@ class TestErrorHandling:
 
     def test_validate_league_access_failure(self):
         """Test failed league access validation"""
-        with patch("espn.ESPNLeague") as mock_espn_league_class:
+        with patch("src.espn.ESPNLeague") as mock_espn_league_class:
             mock_espn_league_class.side_effect = Exception("League not found")
 
             result = validate_league_access(12345, 2024)

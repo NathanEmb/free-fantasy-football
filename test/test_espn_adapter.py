@@ -229,7 +229,7 @@ def test_real_espn_league():
 
 def test_convert_player_with_injury_status():
     """Test converting a player with injury status"""
-    from espn import convert_player
+    from src.espn import convert_player
 
     # Mock injured player
     mock_player = Mock()
@@ -258,7 +258,7 @@ def test_convert_player_with_injury_status():
 
 def test_convert_player_with_team_info():
     """Test converting a player with team information"""
-    from espn import convert_player
+    from src.espn import convert_player
 
     # Mock player with team info
     mock_player = Mock()
