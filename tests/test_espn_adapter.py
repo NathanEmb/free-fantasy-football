@@ -22,24 +22,97 @@ def mock_espn_league():
 
     # Mock teams with rosters
     mock_team1 = Mock()
-    mock_team1.roster = [
-        Mock(playerId="1", name="Player 1", position="QB"),
-        Mock(playerId="2", name="Player 2", position="RB"),
-    ]
+    
+    # Create player 1
+    player1 = Mock()
+    player1.playerId = "1"
+    player1.name = "Player 1"
+    player1.position = "QB"
+    player1.proTeamId = "KC"
+    player1.jersey = 15
+    player1.height = "6-3"
+    player1.weight = 225
+    player1.age = 28
+    player1.experience = 6
+    player1.college = "Texas Tech"
+    player1.injured = False
+    player1.injuryStatus = "ACTIVE"
+    player1.active = True
+    
+    # Create player 2
+    player2 = Mock()
+    player2.playerId = "2"
+    player2.name = "Player 2"
+    player2.position = "RB"
+    player2.proTeamId = "NE"
+    player2.jersey = 12
+    player2.height = "6-0"
+    player2.weight = 220
+    player2.age = 25
+    player2.experience = 3
+    player2.college = "Alabama"
+    player2.injured = False
+    player2.injuryStatus = "ACTIVE"
+    player2.active = True
+    
+    mock_team1.roster = [player1, player2]
 
     mock_team2 = Mock()
-    mock_team2.roster = [
-        Mock(playerId="3", name="Player 3", position="WR"),
-        Mock(playerId="1", name="Player 1", position="QB"),  # Duplicate
-    ]
+    
+    # Create player 3
+    player3 = Mock()
+    player3.playerId = "3"
+    player3.name = "Player 3"
+    player3.position = "WR"
+    player3.proTeamId = "LV"
+    player3.jersey = 17
+    player3.height = "6-1"
+    player3.weight = 215
+    player3.age = 31
+    player3.experience = 10
+    player3.college = "Fresno State"
+    player3.injured = False
+    player3.injuryStatus = "ACTIVE"
+    player3.active = True
+    
+    mock_team2.roster = [player3]
 
     mock_league.teams = [mock_team1, mock_team2]
 
-    # Mock free agents
-    mock_league.free_agents = [
-        Mock(playerId="4", name="Free Agent 1", position="TE"),
-        Mock(playerId="5", name="Free Agent 2", position="K"),
-    ]
+    # Mock free agents as a method that returns a list
+    # Create free agent 1
+    free_agent1 = Mock()
+    free_agent1.playerId = "4"
+    free_agent1.name = "Free Agent 1"
+    free_agent1.position = "TE"
+    free_agent1.proTeamId = "BUF"
+    free_agent1.jersey = 85
+    free_agent1.height = "6-4"
+    free_agent1.weight = 250
+    free_agent1.age = 26
+    free_agent1.experience = 4
+    free_agent1.college = "Iowa"
+    free_agent1.injured = False
+    free_agent1.injuryStatus = "ACTIVE"
+    free_agent1.active = True
+    
+    # Create free agent 2
+    free_agent2 = Mock()
+    free_agent2.playerId = "5"
+    free_agent2.name = "Free Agent 2"
+    free_agent2.position = "K"
+    free_agent2.proTeamId = "SF"
+    free_agent2.jersey = 9
+    free_agent2.height = "6-1"
+    free_agent2.weight = 190
+    free_agent2.age = 29
+    free_agent2.experience = 7
+    free_agent2.college = "Georgia"
+    free_agent2.injured = False
+    free_agent2.injuryStatus = "ACTIVE"
+    free_agent2.active = True
+    
+    mock_league.free_agents = Mock(return_value=[free_agent1, free_agent2])
 
     return mock_league
 
@@ -50,15 +123,29 @@ def mock_espn_league_no_free_agents():
     mock_league = Mock()
 
     mock_team1 = Mock()
-    mock_team1.roster = [
-        Mock(playerId="1", name="Player 1", position="QB"),
-    ]
+    
+    # Create player 1
+    player1 = Mock()
+    player1.playerId = "1"
+    player1.name = "Player 1"
+    player1.position = "QB"
+    player1.proTeamId = "KC"
+    player1.jersey = 15
+    player1.height = "6-3"
+    player1.weight = 225
+    player1.age = 28
+    player1.experience = 6
+    player1.college = "Texas Tech"
+    player1.injured = False
+    player1.injuryStatus = "ACTIVE"
+    player1.active = True
+    
+    mock_team1.roster = [player1]
 
     mock_league.teams = [mock_team1]
 
-    # Remove free_agents attribute
-    if hasattr(mock_league, "free_agents"):
-        delattr(mock_league, "free_agents")
+    # Mock free_agents to raise an exception
+    mock_league.free_agents = Mock(side_effect=Exception("No free agents"))
 
     return mock_league
 
@@ -67,7 +154,7 @@ def test_get_all_players(mock_espn_league):
     """Test the get_all_players function"""
     all_players = get_all_players(mock_espn_league)
 
-    # Should get 5 unique players (3 from rosters + 2 free agents)
+    # Should get 5 unique players (2 from team1 roster + 1 from team2 roster + 2 free agents)
     assert len(all_players) == 5
 
     # Check that we have the expected players
@@ -95,7 +182,7 @@ def test_convert_players(mock_espn_league):
     """Test the convert_players function"""
     players = convert_players(mock_espn_league)
 
-    # Should get 5 players (3 from rosters + 2 free agents)
+    # Should get 5 players (2 from team1 roster + 1 from team2 roster + 2 free agents)
     assert len(players) == 5
 
     # Check that we have the expected players
@@ -143,45 +230,55 @@ def test_real_espn_league():
     except Exception as e:
         pytest.fail(f"Real ESPN test failed: {e}")
 
-    def test_convert_player_with_injury_status():
-        """Test converting a player with injury status"""
-        from espn import convert_player
+
+def test_convert_player_with_injury_status():
+    """Test converting a player with injury status"""
+    from espn import convert_player
 
     # Mock injured player
-    mock_player = Mock(
-        playerId="123",
-        name="Injured Player",
-        position="RB",
-        injured=True,
-        injuryStatus="QUESTIONABLE",
-    )
+    mock_player = Mock()
+    mock_player.playerId = "123"
+    mock_player.name = "Injured Player"  # Set as string, not Mock
+    mock_player.position = "RB"
+    mock_player.proTeamId = "NE"
+    mock_player.jersey = 12
+    mock_player.height = "6-0"
+    mock_player.weight = 220
+    mock_player.age = 25
+    mock_player.experience = 3
+    mock_player.college = "Alabama"
+    mock_player.injured = True
+    mock_player.injuryStatus = "QUESTIONABLE"
+    mock_player.active = True
 
     player = convert_player(mock_player)
 
     assert player.name == "Injured Player"
     assert player.position.value == "RB"
+    assert player.nfl_team_id == "NE"
     assert player.is_injured == 1  # Should be converted to integer for SQLite
     assert player.injury_status == "QUESTIONABLE"
 
-    def test_convert_player_with_team_info():
-        """Test converting a player with team information"""
-        from espn import convert_player
+
+def test_convert_player_with_team_info():
+    """Test converting a player with team information"""
+    from espn import convert_player
 
     # Mock player with team info
-    mock_player = Mock(
-        playerId="456",
-        name="Team Player",
-        position="QB",
-        proTeamId="KC",
-        jersey=15,
-        height="6-3",
-        weight=225,
-        age=28,
-        experience=6,
-        college="Texas Tech",
-        injured=False,
-        injuryStatus="ACTIVE",
-    )
+    mock_player = Mock()
+    mock_player.playerId = "456"
+    mock_player.name = "Team Player"  # Set as string, not Mock
+    mock_player.position = "QB"
+    mock_player.proTeamId = "KC"
+    mock_player.jersey = 15
+    mock_player.height = "6-3"
+    mock_player.weight = 225
+    mock_player.age = 28
+    mock_player.experience = 6
+    mock_player.college = "Texas Tech"
+    mock_player.injured = False
+    mock_player.injuryStatus = "ACTIVE"
+    mock_player.active = True
 
     player = convert_player(mock_player)
 

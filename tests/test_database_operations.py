@@ -18,6 +18,7 @@ import tempfile
 from datetime import datetime
 
 import pytest
+import sqlite3
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
 
@@ -100,7 +101,7 @@ class TestDatabaseInitialization:
                 "player_rankings",
                 "trade_proposals",
                 "trade_items",
-                "trade_analyses",
+                "trade_analysis",  # Fixed: was trade_analyses
                 "waiver_priorities",
                 "free_agent_recommendations",
             ]
@@ -518,8 +519,10 @@ class TestErrorHandling:
         original_path = os.getenv("SQLITE_DB_PATH")
         os.environ["SQLITE_DB_PATH"] = "/invalid/path/database.db"
 
-        with pytest.raises(Exception):
-            get_db_connection().__enter__()
+        # Test that we get an error when trying to connect to invalid path
+        with pytest.raises((OSError, sqlite3.OperationalError)):
+            with get_db_connection() as conn:
+                conn.execute("SELECT 1")
 
         # Restore original path
         if original_path:

@@ -7,19 +7,17 @@ import sqlite3
 from collections.abc import Generator
 from contextlib import contextmanager
 
-# Database path
-DATABASE_PATH = os.getenv("SQLITE_DB_PATH", "data/fantasy_football.db")
-
 
 def get_database_path() -> str:
     """Get the database file path"""
-    return DATABASE_PATH
+    return os.getenv("SQLITE_DB_PATH", "data/fantasy_football.db")
 
 
 @contextmanager
 def get_db_connection() -> Generator[sqlite3.Connection]:
     """Get a database connection with proper configuration"""
-    conn = sqlite3.connect(DATABASE_PATH)
+    db_path = get_database_path()
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row  # Enable dict-like access to rows
     try:
         yield conn
@@ -29,9 +27,10 @@ def get_db_connection() -> Generator[sqlite3.Connection]:
 
 def init_database() -> None:
     """Initialize the database with schema"""
-    if not os.path.exists(DATABASE_PATH):
+    db_path = get_database_path()
+    if not os.path.exists(db_path):
         # Create the directory if it doesn't exist
-        os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         # Read and execute schema
         schema_path = os.path.join(os.path.dirname(__file__), "..", "database", "schema.sql")
