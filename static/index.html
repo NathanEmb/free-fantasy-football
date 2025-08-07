@@ -12,6 +12,7 @@
         
         <div class="nav">
             <button onclick="loadTeams()">Teams</button>
+            <button onclick="loadTeamsWithPlayers()">Teams & Players</button>
             <button onclick="loadPlayers()">Players</button>
             <button onclick="loadHealth()">Health Check</button>
         </div>
@@ -57,6 +58,103 @@
                 }
             } catch (error) {
                 content.innerHTML = '<div class="error">Error loading players: ' + error.message + '</div>';
+            }
+        }
+
+        async function loadTeamsWithPlayers() {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="loading">Loading teams with players...</div>';
+            
+            try {
+                const response = await fetch('/api/teams-with-players');
+                const data = await response.json();
+                
+                if (data.teams && data.teams.length > 0) {
+                    let html = '<h2>Teams & Players</h2>';
+                    
+                    data.teams.forEach(team => {
+                        const winPct = ((team.wins / (team.wins + team.losses + team.ties)) * 100).toFixed(1);
+                        
+                        html += `
+                            <div class="team-card">
+                                <div class="team-header">
+                                    <h3>${team.team_name}</h3>
+                                    <div class="team-stats">
+                                        <span class="owner">Owner: ${team.owner_name}</span>
+                                        <span class="record">${team.wins}-${team.losses}-${team.ties} (${winPct}%)</span>
+                                        <span class="points">PF: ${team.points_for.toFixed(1)} | PA: ${team.points_against.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="roster-composition">
+                                    <strong>Roster (${team.player_count} players):</strong>
+                        `;
+                        
+                        // Show roster composition
+                        if (team.roster_composition && Object.keys(team.roster_composition).length > 0) {
+                            Object.entries(team.roster_composition).forEach(([pos, count]) => {
+                                html += `<span class="position-count">${pos}: ${count}</span>`;
+                            });
+                        } else {
+                            html += '<span class="no-players">No roster data available</span>';
+                        }
+                        
+                        html += '</div>';
+                        
+                        if (team.players && team.players.length > 0) {
+                            html += '<div class="players-grid">';
+                            
+                            // Group players by position
+                            const playersByPosition = {};
+                            team.players.forEach(player => {
+                                if (!playersByPosition[player.position]) {
+                                    playersByPosition[player.position] = [];
+                                }
+                                playersByPosition[player.position].push(player);
+                            });
+                            
+                            // Display players by position
+                            const positions = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+                            positions.forEach(pos => {
+                                if (playersByPosition[pos]) {
+                                    html += `<div class="position-group">
+                                        <h4>${pos}</h4>`;
+                                    
+                                    playersByPosition[pos].forEach(player => {
+                                        const nflTeam = player.nfl_team_code || 'FA';
+                                        const isStarter = player.is_starting ? ' starter' : '';
+                                        const injuryStatus = player.is_injured ? ' injured' : '';
+                                        
+                                        html += `
+                                            <div class="player-card${isStarter}${injuryStatus}">
+                                                <div class="player-name">${player.name}</div>
+                                                <div class="player-details">
+                                                    <span class="nfl-team">${nflTeam}</span>
+                                                    ${player.is_starting ? '<span class="starter-badge">STARTER</span>' : ''}
+                                                    ${player.is_injured ? '<span class="injury-badge">INJURED</span>' : ''}
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    
+                                    html += '</div>';
+                                }
+                            });
+                            
+                            html += '</div>';
+                        } else {
+                            html += '<div class="no-players">No players found for this team</div>';
+                        }
+                        
+                        html += '</div>'; // Close team-card
+                    });
+                    
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = '<div class="loading">No teams found</div>';
+                }
+            } catch (error) {
+                content.innerHTML = '<div class="error">Error loading teams with players: ' + error.message + '</div>';
             }
         }
 
