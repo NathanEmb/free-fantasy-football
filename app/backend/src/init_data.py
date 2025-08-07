@@ -5,8 +5,8 @@ Database initialization script to populate sample data
 import uuid
 from datetime import datetime
 
-from database import execute_insert, get_db_connection
-from logging_config import get_logger
+from .database import execute_insert, get_db_connection
+from .logging_config import get_logger
 
 
 def init_sample_data():

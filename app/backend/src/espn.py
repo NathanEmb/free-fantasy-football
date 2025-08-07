@@ -10,12 +10,13 @@ import os
 import uuid
 from typing import Any
 
-from database import get_db_connection
 from espn_api.football import League as ESPNLeague
 from espn_api.football import Player as ESPNPlayer
 from espn_api.football import Team as ESPNTeam
-from logging_config import get_logger
-from models import (
+
+from .database import get_db_connection
+from .logging_config import get_logger
+from .models import (
     AcquisitionType,
     FantasyMatchup,
     FantasyTeam,

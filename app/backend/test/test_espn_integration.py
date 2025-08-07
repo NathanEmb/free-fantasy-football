@@ -11,19 +11,17 @@ Tests cover:
 
 import os
 import shutil
-
-# Add the app directory to the path so we can import modules
-import sys
 import tempfile
 from unittest.mock import Mock, patch
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
-
-from database import execute_query, get_db_connection, init_database
-from espn import (
+from src.database import execute_query, get_db_connection, init_database
+from src.espn import (
+    AcquisitionType,
     ESPNFantasyError,
+    Platform,
+    Position,
+    ScoringType,
     convert_league_config,
     convert_matchup,
     convert_matchups,
@@ -36,13 +34,9 @@ from espn import (
     get_league_data,
     init_espn_data,
     validate_league_access,
-    Platform,
-    ScoringType,
-    Position,
-    AcquisitionType,
 )
-from logging_config import get_logger
-from models import FantasyMatchup, FantasyTeam, LeagueConfig, Player, RosterEntry
+from src.logging_config import get_logger
+from src.models import FantasyMatchup, FantasyTeam, LeagueConfig, Player, RosterEntry
 
 logger = get_logger(__name__)
 
@@ -94,7 +88,7 @@ def mock_espn_league():
     mock_team1.points_for = 120.5
     mock_team1.points_against = 115.2
     mock_team1.owners = [{"displayName": "John Doe"}]
-    
+
     # Create proper mock players
     player1 = Mock()
     player1.playerId = "1"
@@ -314,7 +308,7 @@ class TestESPNToCoreDataModel:
 
         matchups = convert_matchups(mock_espn_league, team_mapping)
 
-        assert len(matchups) == 0 # No matchups in mock league
+        assert len(matchups) == 0  # No matchups in mock league
 
 
 class TestCoreDataModelToSQLite:
@@ -475,7 +469,7 @@ class TestSQLiteToCoreDataModel:
         with get_db_connection() as conn:
             # Clean up any existing data first
             conn.execute("DELETE FROM fantasy_teams")
-            
+
             # Insert test data
             conn.execute(
                 """
@@ -531,7 +525,7 @@ class TestSQLiteToCoreDataModel:
 class TestESPNDatabaseInitialization:
     """Test ESPN database initialization"""
 
-    @patch("espn.get_league_data")
+    @patch("src.espn.get_league_data")
     def test_init_espn_data_success(self, mock_get_league_data, temp_database):
         """Test successful ESPN data initialization"""
         # Mock the get_league_data function to return test data
@@ -611,8 +605,7 @@ class TestESPNDatabaseInitialization:
             result = conn.execute("SELECT COUNT(*) as count FROM fantasy_teams")
             assert result.fetchone()["count"] == 1
 
-
-    @patch("espn.get_league_data")
+    @patch("src.espn.get_league_data")
     def test_init_espn_data_validation_failure(self, mock_get_league_data, temp_database):
         """Test ESPN data initialization with validation failure"""
         # Mock get_league_data to raise an exception
@@ -708,7 +701,7 @@ class TestErrorHandling:
 class TestIntegration:
     """Integration tests combining multiple components"""
 
-    @patch("espn.get_league_data")
+    @patch("src.espn.get_league_data")
     def test_full_espn_to_database_flow(self, mock_get_league_data, temp_database):
         """Test complete flow from ESPN API to database"""
         # Setup mock data

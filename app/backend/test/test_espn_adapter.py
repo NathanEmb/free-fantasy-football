@@ -7,12 +7,8 @@ import sys
 from unittest.mock import Mock, patch
 
 import pytest
-
-# Add the app directory to the path so we can import modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
-
-from espn import convert_players, get_all_players, get_league_data
-from logging_config import get_logger
+from src.espn import convert_players, get_all_players, get_league_data
+from src.logging_config import get_logger
 
 
 @pytest.fixture
@@ -22,7 +18,7 @@ def mock_espn_league():
 
     # Mock teams with rosters
     mock_team1 = Mock()
-    
+
     # Create player 1
     player1 = Mock()
     player1.playerId = "1"
@@ -38,7 +34,7 @@ def mock_espn_league():
     player1.injured = False
     player1.injuryStatus = "ACTIVE"
     player1.active = True
-    
+
     # Create player 2
     player2 = Mock()
     player2.playerId = "2"
@@ -54,11 +50,11 @@ def mock_espn_league():
     player2.injured = False
     player2.injuryStatus = "ACTIVE"
     player2.active = True
-    
+
     mock_team1.roster = [player1, player2]
 
     mock_team2 = Mock()
-    
+
     # Create player 3
     player3 = Mock()
     player3.playerId = "3"
@@ -74,7 +70,7 @@ def mock_espn_league():
     player3.injured = False
     player3.injuryStatus = "ACTIVE"
     player3.active = True
-    
+
     mock_team2.roster = [player3]
 
     mock_league.teams = [mock_team1, mock_team2]
@@ -95,7 +91,7 @@ def mock_espn_league():
     free_agent1.injured = False
     free_agent1.injuryStatus = "ACTIVE"
     free_agent1.active = True
-    
+
     # Create free agent 2
     free_agent2 = Mock()
     free_agent2.playerId = "5"
@@ -111,7 +107,7 @@ def mock_espn_league():
     free_agent2.injured = False
     free_agent2.injuryStatus = "ACTIVE"
     free_agent2.active = True
-    
+
     mock_league.free_agents = Mock(return_value=[free_agent1, free_agent2])
 
     return mock_league
@@ -123,7 +119,7 @@ def mock_espn_league_no_free_agents():
     mock_league = Mock()
 
     mock_team1 = Mock()
-    
+
     # Create player 1
     player1 = Mock()
     player1.playerId = "1"
@@ -139,7 +135,7 @@ def mock_espn_league_no_free_agents():
     player1.injured = False
     player1.injuryStatus = "ACTIVE"
     player1.active = True
-    
+
     mock_team1.roster = [player1]
 
     mock_league.teams = [mock_team1]

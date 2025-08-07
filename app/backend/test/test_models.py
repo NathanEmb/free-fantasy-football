@@ -10,18 +10,12 @@ Tests cover:
 """
 
 import os
-
-# Add the app directory to the path so we can import modules
-import sys
 from dataclasses import asdict
 from datetime import datetime
 
 import pytest
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
-
-from logging_config import get_logger
-from models import (
+from src.logging_config import get_logger
+from src.models import (
     AcquisitionType,
     Conference,
     Division,

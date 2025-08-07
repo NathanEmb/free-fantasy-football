@@ -11,18 +11,12 @@ Tests cover:
 
 import os
 import shutil
-
-# Add the app directory to the path so we can import modules
-import sys
+import sqlite3
 import tempfile
 from datetime import datetime
 
 import pytest
-import sqlite3
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "app", "backend"))
-
-from database import (
+from src.database import (
     execute_delete,
     execute_insert,
     execute_query,
@@ -31,8 +25,8 @@ from database import (
     get_db_connection,
     init_database,
 )
-from logging_config import get_logger
-from models import (
+from src.logging_config import get_logger
+from src.models import (
     Conference,
     Division,
     FantasyMatchup,

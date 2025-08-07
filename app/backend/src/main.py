@@ -5,11 +5,12 @@ FastAPI application for Fantasy Football Analysis
 import os
 
 import uvicorn
-from database import get_database_path, init_database
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from logging_config import get_logger
+
+from .database import get_database_path, init_database
+from .logging_config import get_logger
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -33,19 +34,19 @@ async def startup_event():
         logger.info(f"Database initialized at: {get_database_path()}")
 
         # Initialize ESPN data if database is empty
-        from database import execute_query
+        from .database import execute_query
 
         teams_count = execute_query("SELECT COUNT(*) as count FROM fantasy_teams")
         if teams_count[0]["count"] == 0:
             logger.info("Database is empty, initializing ESPN data...")
-            from espn import init_espn_data
+            from .espn import init_espn_data
 
             success = init_espn_data()
             if success:
                 logger.info("ESPN data initialization complete!")
             else:
                 logger.warning("ESPN data initialization failed, falling back to sample data...")
-                from init_data import init_sample_data
+                from .init_data import init_sample_data
 
                 init_sample_data()
                 logger.info("Sample data initialization complete!")
@@ -72,7 +73,7 @@ async def health_check():
 async def get_teams():
     """Get all fantasy teams"""
     try:
-        from database import execute_query
+        from .database import execute_query
 
         teams = execute_query("SELECT * FROM fantasy_teams ORDER BY team_name")
         return {"teams": [dict(team) for team in teams]}
@@ -84,7 +85,7 @@ async def get_teams():
 async def get_players():
     """Get all players"""
     try:
-        from database import execute_query
+        from .database import execute_query
 
         players = execute_query("SELECT * FROM players ORDER BY name")
         return {"players": [dict(player) for player in players]}
