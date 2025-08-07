@@ -1,5 +1,5 @@
 > [!NOTE]  
-> Very early work in progress, bit of a vibe code demo
+> Very early work in progress, this is prompt engineernig based experiment
 
 
 # Fantasy Football Analysis Platform
