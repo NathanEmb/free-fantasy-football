@@ -51,8 +51,7 @@ That's it so far.
 I used cursor for the first time. In some ways it was neat, using their free pro trial. Was frustrating at times because it was trying to do WAY too much at once, and then sometimes it would hang when trying to use the CLI in a way that made me lose focus.
 
 I've mostly used vscode agent mode so far, and tbh I like that better at this point in time. I'll give cursor one more night of usage probably, but if it doesn't get better I want to keep exploring other types.
+ 
+### 8/6/2025
 
-
-## License
-
-This project is open source and available under the MIT License.
+Cursor kept being annoying stalling on prompts, missing the point, etc. Was also more expensive than copilot, for less model options, and in my experience copilot agent actually works better. I looked into Windsail but decided not to, signed up for Kiro waitlist and maybe I'll try that. Anywho gonna try copilot from now on.
