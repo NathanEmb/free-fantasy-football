@@ -101,11 +101,11 @@ async def get_teams_with_players():
 
         # Get all teams
         teams = execute_query("SELECT * FROM fantasy_teams ORDER BY points_for DESC")
-        
+
         teams_with_players = []
         for team in teams:
             team_dict = dict(team)
-            
+
             # Get players for this team from roster_entries
             # First check if roster_entries has data
             try:
@@ -132,23 +132,23 @@ async def get_teams_with_players():
                 players = execute_query(players_query, (team["id"],))
                 team_dict["players"] = [dict(player) for player in players]
                 team_dict["player_count"] = len(players)
-                
+
                 # Calculate roster composition
                 positions = {}
                 for player in players:
                     pos = player["position"]
                     positions[pos] = positions.get(pos, 0) + 1
                 team_dict["roster_composition"] = positions
-                
+
             except Exception as e:
                 # If roster_entries doesn't exist or has issues, just return empty roster
                 logger.warning(f"Could not load roster for team {team['id']}: {e}")
                 team_dict["players"] = []
                 team_dict["player_count"] = 0
                 team_dict["roster_composition"] = {}
-            
+
             teams_with_players.append(team_dict)
-            
+
         return {"teams": teams_with_players}
     except Exception as e:
         logger.error(f"Error in get_teams_with_players: {e}")
