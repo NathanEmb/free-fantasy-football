@@ -399,10 +399,10 @@ def init_espn_data() -> bool:
                 ),
             )
 
-            # Insert fantasy teams
+            # Insert fantasy teams - use the same UUIDs as in the models
             team_mapping = {}  # ESPN team ID -> database team ID
             for team in teams:
-                team_db_id = str(uuid.uuid4())
+                team_db_id = team.id  # Use the UUID from the model, not a new one
                 team_mapping[team.platform_team_id] = team_db_id
 
                 conn.execute(
@@ -423,11 +423,12 @@ def init_espn_data() -> bool:
                     ),
                 )
 
-            # Insert players
+            # Insert players - use the same UUIDs as in the models
             player_mapping = {}  # ESPN player ID -> database player ID
             for player in players:
-                player_db_id = str(uuid.uuid4())
-                player_mapping[player.espn_id] = player_db_id
+                player_db_id = player.id  # Use the UUID from the model, not a new one
+                if player.espn_id:  # Only add if espn_id exists
+                    player_mapping[player.espn_id] = player_db_id
 
                 # Debug: print the values being inserted
                 values = (
@@ -460,8 +461,8 @@ def init_espn_data() -> bool:
             # Insert roster entries
             for roster_entry in roster_entries:
                 roster_db_id = str(uuid.uuid4())
-                fantasy_team_id = team_mapping.get(roster_entry.fantasy_team_id)
-                player_id = player_mapping.get(roster_entry.player_id)
+                fantasy_team_id = roster_entry.fantasy_team_id  # This is already the correct UUID
+                player_id = roster_entry.player_id  # This is already the correct UUID
 
                 if fantasy_team_id and player_id:
                     # Get or create a default roster position (use bench as default)
@@ -503,9 +504,9 @@ def init_espn_data() -> bool:
             # Insert matchups
             for matchup in matchups:
                 matchup_db_id = str(uuid.uuid4())
-                home_team_id = team_mapping.get(matchup.home_team_id)
-                away_team_id = team_mapping.get(matchup.away_team_id)
-                winner_id = team_mapping.get(matchup.winner_id) if matchup.winner_id else None
+                home_team_id = matchup.home_team_id  # This is already the correct UUID
+                away_team_id = matchup.away_team_id  # This is already the correct UUID
+                winner_id = matchup.winner_id if matchup.winner_id else None  # This is already the correct UUID
 
                 if home_team_id and away_team_id:
                     conn.execute(

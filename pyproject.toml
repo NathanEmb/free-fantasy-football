@@ -3,7 +3,7 @@ name = "free-fantasy-football"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "espn-api>=0.45.1",
     "fastapi[all]>=0.116.1",
@@ -13,7 +13,7 @@ dependencies = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py312"
 select = [
     "E",    # pycodestyle errors
     "I",    # isort
