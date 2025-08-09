@@ -5,7 +5,74 @@ Tests for the comprehensive fantasy football dashboard endpoints
 import pytest
 import tempfile
 import os
+import uuid
 from fastapi.testclient import TestClient
+
+
+def _init_test_data():
+    """Initialize minimal test data for dashboard endpoints"""
+    from src.database import get_db_connection
+    
+    with get_db_connection() as conn:
+        # Insert minimal NFL teams
+        nfl_teams = [
+            ("KC", "Kansas City Chiefs", "Kansas City", "AFC", "West"),
+            ("BUF", "Buffalo Bills", "Buffalo", "AFC", "East"),
+        ]
+        
+        for team_code, team_name, city, conference, division in nfl_teams:
+            team_id = str(uuid.uuid4())
+            conn.execute(
+                "INSERT INTO nfl_teams (id, team_code, team_name, city, conference, division) VALUES (?, ?, ?, ?, ?, ?)",
+                (team_id, team_code, team_name, city, conference, division),
+            )
+        
+        # Insert league config
+        league_id = str(uuid.uuid4())
+        conn.execute(
+            "INSERT INTO league_config (id, league_name, platform, season_year, scoring_type, team_count, playoff_teams) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (league_id, "Test League", "ESPN", 2024, "PPR", 2, 2),
+        )
+        
+        # Insert fantasy teams
+        team_ids = []
+        for i, (owner_name, team_name) in enumerate([("Test Owner 1", "Test Team 1"), ("Test Owner 2", "Test Team 2")]):
+            team_id = str(uuid.uuid4())
+            team_ids.append(team_id)
+            conn.execute(
+                "INSERT INTO fantasy_teams (id, owner_name, team_name, platform_team_id, wins, losses, ties, points_for, points_against) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (team_id, owner_name, team_name, str(i + 1), 5, 5, 0, 1500.0, 1400.0),
+            )
+        
+        # Insert roster positions
+        position_id = str(uuid.uuid4())
+        conn.execute(
+            "INSERT INTO roster_positions (id, position, count, is_bench) VALUES (?, ?, ?, ?)",
+            (position_id, "QB", 1, 0),
+        )
+        
+        # Insert a few test players
+        player_ids = []
+        nfl_team_cursor = conn.execute("SELECT id FROM nfl_teams LIMIT 1")
+        nfl_team_id = nfl_team_cursor.fetchone()["id"]
+        
+        for name, position in [("Patrick Mahomes", "QB"), ("Josh Allen", "QB")]:
+            player_id = str(uuid.uuid4())
+            player_ids.append(player_id)
+            conn.execute(
+                "INSERT INTO players (id, nfl_team_id, name, position, is_active) VALUES (?, ?, ?, ?, ?)",
+                (player_id, nfl_team_id, name, position, 1),
+            )
+        
+        # Insert roster entries
+        for i, (team_id, player_id) in enumerate(zip(team_ids, player_ids)):
+            roster_entry_id = str(uuid.uuid4())
+            conn.execute(
+                "INSERT INTO roster_entries (id, fantasy_team_id, player_id, roster_position_id, is_starting) VALUES (?, ?, ?, ?, ?)",
+                (roster_entry_id, team_id, player_id, position_id, 1),
+            )
+        
+        conn.commit()
 
 
 @pytest.fixture
@@ -23,14 +90,13 @@ def client():
     try:
         # Import app after setting environment variable
         from src.main import app
-        from src.database import init_database, get_database_path
-        from src.init_data import init_sample_data
+        from src.database import init_database, get_database_path, get_db_connection
         
         # Initialize test database with schema
         init_database()
         
-        # Initialize with sample data
-        init_sample_data()
+        # Initialize with minimal test data
+        _init_test_data()
         
         # Create test client without triggering startup event
         app.router.on_event = lambda x: lambda: None  # Disable startup event for tests

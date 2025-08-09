@@ -45,16 +45,14 @@ async def startup_event():
             if success:
                 logger.info("ESPN data initialization complete!")
             else:
-                logger.warning("ESPN data initialization failed, falling back to sample data...")
-                from src.init_data import init_sample_data
-
-                init_sample_data()
-                logger.info("Sample data initialization complete!")
+                logger.error("ESPN data initialization failed. Please check your ESPN_LEAGUE_ID and ESPN_YEAR environment variables.")
+                raise Exception("Failed to initialize ESPN data - no fallback available")
         else:
             logger.info("Database already contains data, skipping initialization.")
 
     except Exception as e:
         logger.error(f"Error initializing database: {e}")
+        raise
 
 
 @app.get("/")
