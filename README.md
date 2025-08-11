@@ -1,5 +1,5 @@
 > [!NOTE]  
-> Very early work in progress, this is prompt engineering based experiment
+> Very early work in progress, this is a prompt engineering based experiment
 
 
 # Fantasy Football Analysis Platform
